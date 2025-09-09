@@ -115,6 +115,77 @@ Our research and experimentation focus on:
 
 - **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
 - **[Detailed Walkthrough](#detailed-process)** - Step-by-step implementation guide
+- **[SDD Quickstart](#sdd-quickstart)** - Get started with the enhanced SDD system
+
+---
+
+## 🚀 SDD Quickstart
+
+The Spec Kit repository now includes a complete Spec-Driven Development (SDD) system with governance, multi-agent support, and automated validation.
+
+### Quick Setup
+
+1. **Review SDD Governance**
+   ```bash
+   # Read the constitution and lifecycle
+   cat dev-docs/sdd/constitution.md
+   cat dev-docs/sdd/lifecycle.md
+   ```
+
+2. **Run Local Validation**
+   ```bash
+   # Check SDD structure compliance
+   python scripts/sdd/validate_structure.py
+   
+   # Run semantic checks
+   ./scripts/sdd/run_semantic_checks.sh
+   
+   # Lint documentation
+   ./scripts/sdd/lint_docs.sh
+   ```
+
+3. **Use Git Worktrees for Parallel Development**
+   ```bash
+   # Create feature worktree
+   git worktree add ../spec-kit-feature-auth -b feature/auth
+   cd ../spec-kit-feature-auth
+   
+   # Start agent session
+   code .  # For Claude Code
+   # or
+   warp-preview agent run --profile dev
+   ```
+
+4. **Follow SDD Lifecycle**
+   - Create specification: `/specify` or `scripts/create-new-feature.sh`
+   - Generate plan: `/plan` or `scripts/setup-plan.sh`
+   - Create tasks: `/tasks`
+   - Implement with TDD
+   - Commit with task refs: `git commit -m "feat: add auth [TASK-001]"`
+
+### Agent Configuration
+
+- **Claude Code**: Primary developer, see `dev-docs/sdd/CLAUDE.md`
+- **Warp Agent**: CLI operations, see `dev-docs/sdd/AGENTS.md`
+- **MCP Servers**: Integration guide in `dev-docs/agents/mcp.md`
+
+### CI/CD Validation
+
+All PRs automatically run:
+- SDD structure validation
+- Documentation linting
+- Python tests
+- Security scanning
+- AI code review (advisory)
+
+See workflows in `.github/workflows/`
+
+### Example Workflow
+
+View complete example in `specs/000-example/`:
+- `ISSUE.md` - Issue tracking
+- `TASK-PLAN.md` - Task breakdown with traceability
+- `spec.md` - Full specification example
 
 ---
 
