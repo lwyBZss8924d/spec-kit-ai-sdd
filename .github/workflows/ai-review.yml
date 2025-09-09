@@ -1,0 +1,269 @@
+name: AI Code Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to review'
+        required: false
+        type: number
+      review_type:
+        description: 'Type of review to perform'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+          - comprehensive
+          - security
+          - performance
+          - sdd-compliance
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  ai-review:
+    name: Perform AI Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set PR context
+        id: pr-context
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.pr_number }}" ]; then
+              echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+            else
+              # Get the most recent PR
+              PR_NUMBER=$(gh pr list --limit 1 --json number --jq '.[0].number')
+              echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            fi
+            echo "review_type=${{ inputs.review_type }}" >> $GITHUB_OUTPUT
+          else
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "review_type=comprehensive" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch PR details
+        id: pr-details
+        run: |
+          PR_DATA=$(gh pr view ${{ steps.pr-context.outputs.pr_number }} --json title,body,files,commits)
+          echo "pr_data<<EOF" >> $GITHUB_OUTPUT
+          echo "$PR_DATA" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          FILES=$(gh pr diff ${{ steps.pr-context.outputs.pr_number }} --name-only)
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Perform review analysis
+        id: review
+        run: |
+          # Create review based on type
+          REVIEW_TYPE="${{ steps.pr-context.outputs.review_type }}"
+          
+          cat << 'EOF' > review_analysis.py
+          import json
+          import sys
+          import re
+          
+          def analyze_sdd_compliance(files):
+              issues = []
+              suggestions = []
+              
+              # Check for spec files
+              spec_files = [f for f in files if f.startswith('specs/')]
+              if spec_files:
+                  suggestions.append("✓ Specification files updated")
+              else:
+                  issues.append("⚠️ No specification files updated - verify if needed")
+              
+              # Check for test files
+              test_files = [f for f in files if f.startswith('tests/') or 'test_' in f]
+              if test_files:
+                  suggestions.append("✓ Test files included")
+              else:
+                  issues.append("⚠️ No test files - ensure TDD compliance")
+              
+              # Check for documentation
+              doc_files = [f for f in files if f.endswith('.md')]
+              if doc_files:
+                  suggestions.append("✓ Documentation updated")
+              
+              return issues, suggestions
+          
+          def analyze_security(files):
+              issues = []
+              patterns = [
+                  (r'api[_-]?key\s*=\s*["\']', "Potential hardcoded API key"),
+                  (r'password\s*=\s*["\']', "Potential hardcoded password"),
+                  (r'token\s*=\s*["\']', "Potential hardcoded token"),
+                  (r'eval\(', "Use of eval() - security risk"),
+                  (r'exec\(', "Use of exec() - security risk"),
+              ]
+              
+              # Note: In real implementation, would scan file contents
+              return issues, ["Security scan placeholder - implement with actual scanning"]
+          
+          def analyze_performance(files):
+              suggestions = []
+              py_files = [f for f in files if f.endswith('.py')]
+              
+              if py_files:
+                  suggestions.append("Consider profiling Python code for performance")
+                  suggestions.append("Check for unnecessary loops and optimizations")
+              
+              return [], suggestions
+          
+          # Main analysis
+          files = sys.argv[1].split('\n') if len(sys.argv) > 1 else []
+          review_type = sys.argv[2] if len(sys.argv) > 2 else 'comprehensive'
+          
+          all_issues = []
+          all_suggestions = []
+          
+          if review_type in ['comprehensive', 'sdd-compliance']:
+              issues, suggestions = analyze_sdd_compliance(files)
+              all_issues.extend(issues)
+              all_suggestions.extend(suggestions)
+          
+          if review_type in ['comprehensive', 'security']:
+              issues, suggestions = analyze_security(files)
+              all_issues.extend(issues)
+              all_suggestions.extend(suggestions)
+          
+          if review_type in ['comprehensive', 'performance']:
+              issues, suggestions = analyze_performance(files)
+              all_issues.extend(issues)
+              all_suggestions.extend(suggestions)
+          
+          print(json.dumps({
+              'issues': all_issues,
+              'suggestions': all_suggestions
+          }))
+          EOF
+          
+          REVIEW_RESULT=$(python review_analysis.py "${{ steps.changed-files.outputs.files }}" "$REVIEW_TYPE")
+          echo "result=$REVIEW_RESULT" >> $GITHUB_OUTPUT
+
+      - name: Post review comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Parse review results
+          REVIEW_DATA='${{ steps.review.outputs.result }}'
+          
+          # Create comment body
+          cat << EOF > comment.md
+          ## 🤖 AI Code Review - ${{ steps.pr-context.outputs.review_type }}
+          
+          **PR #${{ steps.pr-context.outputs.pr_number }}**
+          
+          ### Review Summary
+          
+          EOF
+          
+          # Add issues if any
+          if echo "$REVIEW_DATA" | jq -e '.issues | length > 0' > /dev/null; then
+            echo "#### ⚠️ Issues Found" >> comment.md
+            echo "$REVIEW_DATA" | jq -r '.issues[]' | while read -r issue; do
+              echo "- $issue" >> comment.md
+            done
+            echo "" >> comment.md
+          fi
+          
+          # Add suggestions
+          if echo "$REVIEW_DATA" | jq -e '.suggestions | length > 0' > /dev/null; then
+            echo "#### 💡 Suggestions" >> comment.md
+            echo "$REVIEW_DATA" | jq -r '.suggestions[]' | while read -r suggestion; do
+              echo "- $suggestion" >> comment.md
+            done
+            echo "" >> comment.md
+          fi
+          
+          # Add SDD compliance checklist
+          cat << EOF >> comment.md
+          
+          ### SDD Compliance Checklist
+          
+          - [ ] Specification updated (if feature change)
+          - [ ] Tests written before implementation (TDD)
+          - [ ] Task references in commit messages
+          - [ ] Documentation updated
+          - [ ] No [NEEDS CLARIFICATION] markers
+          - [ ] Agent context files updated (if needed)
+          
+          ### Next Steps
+          
+          1. Address any issues identified above
+          2. Ensure all checklist items are complete
+          3. Request human review when ready
+          
+          ---
+          *This review was performed automatically. For detailed analysis, run a comprehensive Claude Code review.*
+          EOF
+          
+          # Post the comment
+          gh pr comment ${{ steps.pr-context.outputs.pr_number }} --body-file comment.md
+
+  claude-code-review:
+    name: Claude Code Deep Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.review_type == 'comprehensive'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup review context
+        run: |
+          # Prepare context for Claude Code review
+          # This would integrate with actual Claude Code API
+          
+          cat << EOF > claude_review_prompt.md
+          Please perform a comprehensive code review of PR #${{ inputs.pr_number }}.
+          
+          Focus areas:
+          1. SDD Constitution compliance
+          2. Code quality and best practices
+          3. Security vulnerabilities
+          4. Performance optimizations
+          5. Test coverage
+          6. Documentation completeness
+          
+          Provide:
+          - Specific line-by-line feedback
+          - Overall assessment
+          - Suggested improvements
+          - Risk assessment
+          EOF
+          
+          echo "Claude Code review prompt prepared"
+          echo "Note: Actual Claude Code integration requires API setup"
+
+      # Placeholder for actual Claude Code integration
+      # In production, this would use:
+      # - uses: anthropics/claude-code-action@v1
+      #   with:
+      #     api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      #     pr_number: ${{ inputs.pr_number }}
+      #     review_prompt_file: claude_review_prompt.md
