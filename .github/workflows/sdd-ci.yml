@@ -8,9 +8,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  language-policy:
+    name: Language Policy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check English-only normative artifacts
+        run: |
+          chmod +x scripts/sdd/check_language.sh || true
+          ./scripts/sdd/check_language.sh
+
   sdd-validate:
     name: Validate SDD Structure
     runs-on: ubuntu-latest
+    needs: language-policy
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -1,6 +1,10 @@
 # WARP.md
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+This file provides guidance to Warp Agents (warp.dev) when working with code in this repository.
+
+## Language Policy (English-only Normative Artifacts)
+
+All specification and task artifacts committed to the repository (PRDs, specifications, implementation plans, issues, task plans) MUST be written in English. Conversations with developers may use other languages, but do not commit non-English content for these artifacts.
 
 ## Essential Commands
 

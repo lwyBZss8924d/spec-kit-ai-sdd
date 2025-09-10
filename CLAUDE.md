@@ -2,23 +2,51 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language Policy
+
+All normative specification and task artifacts (PRDs, specifications, implementation plans, issues, task plans) committed to the repository MUST be written in English. Conversational discussions in PRs/issues may occur in other languages, but do not commit non-English content to these artifacts.
+
 ## Project Overview
 
 Spec-Kit is a toolkit for Spec-Driven Development (SDD), a methodology that transforms specifications into executable artifacts that generate working implementations. The project provides templates, scripts, and a CLI tool to facilitate the specification → implementation workflow.
 
 ## Essential Commands
 
-### Building and Testing
+### Testing and Validation
 ```bash
-# No build step required - Python project with direct execution
+# Run all tests
+python -m pytest tests/ -v
+
+# Run specific test files
+python -m pytest tests/test_sdd_validation.py -v
+python -m pytest tests/test_specify_cli.py -v
+
+# Validate SDD structure
+python scripts/sdd/validate_structure.py
+
+# Run semantic checks on SDD documents
+./scripts/sdd/run_semantic_checks.sh
+
+# Lint documentation (requires markdownlint)
+./scripts/sdd/lint_docs.sh
+
 # Test the CLI functionality
 python -m specify_cli check
 
 # Verify Python syntax
 python -m py_compile src/specify_cli/__init__.py
+```
 
-# Make scripts executable if needed
-chmod +x scripts/*.sh
+### Code Quality
+```bash
+# Format Python code
+black src/ tests/ scripts/sdd/*.py --line-length 100
+
+# Lint Python code
+ruff check src/ tests/ scripts/sdd/*.py
+
+# Install development dependencies
+pip install -e ".[dev]"
 ```
 
 ### Running the Project
@@ -97,10 +125,40 @@ Each phase produces artifacts in `specs/NNN-feature-name/`:
 - **Git Branches**: Match feature directory names
 - **Commit Format**: `type: description [TASK-ID]` for traceability
 
+## Directory Structure
+
+```tree
+.
+├── src/specify_cli/        # Main CLI tool implementation
+├── templates/              # SDD document templates
+│   ├── commands/          # AI assistant command definitions
+│   └── *.md              # Specification, plan, and task templates
+├── scripts/               # Automation and workflow scripts
+│   └── sdd/              # SDD validation and linting tools
+├── specs/                 # Feature specifications (NNN-feature-name/)
+├── dev-docs/              # Development documentation
+│   ├── sdd/              # SDD methodology docs (constitution.md, lifecycle.md)
+│   ├── agents/           # AI agent guidelines
+│   ├── git/              # Git workflow documentation
+│   └── cli/              # CLI development docs
+├── tests/                 # Test suite
+└── .github/workflows/     # CI/CD pipelines
+```
+
+## SDD Validation Requirements
+
+- All specifications must not contain `[NEEDS CLARIFICATION]` markers
+- Commit messages must follow format: `type(scope): description [TASK-XXX]`
+- Feature directories must follow `NNN-feature-name` convention
+- Each spec must have corresponding plan.md and tasks.md files
+- Task IDs must be sequential and properly tracked
+
 ## Important Notes
 
 - The project is primarily for macOS/Linux (WSL2 on Windows)
 - Requires `uv` package manager from Astral
-- No traditional test suite - focus is on template generation and workflow automation
+- Python 3.11+ required
 - Scripts assume bash shell availability
 - The CLI checks for AI tool installation but can be bypassed with `--ignore-agent-tools`
+- Tests focus on structure validation rather than unit tests
+- GitHub Actions CI validates SDD compliance on every PR

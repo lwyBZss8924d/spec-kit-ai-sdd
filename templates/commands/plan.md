@@ -9,6 +9,8 @@ This is the second step in the Spec-Driven Development lifecycle.
 
 Given the implementation details provided as an argument, do this:
 
+**Language Policy**: Produce the implementation plan in English only (all normative artifacts must be English).
+
 1. Run `scripts/setup-plan.sh --json` from the repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. All future file paths must be absolute.
 2. Read and analyze the feature specification to understand:
    - The feature requirements and user stories

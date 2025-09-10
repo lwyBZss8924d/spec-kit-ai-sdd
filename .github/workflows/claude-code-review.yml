@@ -43,6 +43,7 @@ jobs:
             - Performance considerations
             - Security concerns
             - Test coverage
+            - Language policy compliance (all normative artifacts must be in English)
             
             Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
 

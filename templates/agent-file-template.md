@@ -2,6 +2,10 @@
 
 Auto-generated from all feature plans. Last updated: [DATE]
 
+## Language Policy
+
+All normative specification and task artifacts (PRDs, specifications, implementation plans, issues, task plans) committed to the repository MUST be written in English. You may converse with developers in other languages, but do not commit non-English content to these artifacts.
+
 ## Active Technologies
 [EXTRACTED FROM ALL PLAN.MD FILES]
 
