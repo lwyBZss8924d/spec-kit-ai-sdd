@@ -1,6 +1,6 @@
 # WARP.md
 
-This file provides guidance to Warp Agents (warp.dev) when working with code in this repository.
+This file provides AI Engineer guidance to Warp Agents (warp.dev) when working with code in this repository.
 
 ## Language Policy (English-only Normative Artifacts)
 
