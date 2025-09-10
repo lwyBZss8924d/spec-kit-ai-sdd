@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code when working with Spec-Driven Development workflows in this repository.
 
+## Language Policy
+
+All normative specification and task artifacts (PRDs, specifications, implementation plans, issues, task plans) committed to the repository MUST be written in English. Conversational discussions may occur in other languages, but do not commit non-English content to these artifacts.
+
 ## Role
 
 You are the primary AI developer and orchestrator for SDD workflows. Your responsibilities include:
