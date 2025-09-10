@@ -166,7 +166,9 @@ EOF
         local count=0
         count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | wc -l | tr -d ' ')
         if [[ "$count" -gt 0 ]]; then
-            echo "### ${category^} ($count changes)" >> "$DIFF_MD_FILE"
+            # Portable capitalization (avoid bash 4 ${var^})
+            cat_name=$(printf '%s' "$category" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
+            echo "### ${cat_name} ($count changes)" >> "$DIFF_MD_FILE"
             echo "" >> "$DIFF_MD_FILE"
             analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | while IFS=':' read -r _ file status; do
                 echo "- \`$file\` ($status)" >> "$DIFF_MD_FILE"
