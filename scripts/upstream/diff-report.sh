@@ -164,8 +164,8 @@ EOF
     # Count by category
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count=0
-        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep -c "^$category:" || echo 0)
-        if [[ $count -gt 0 ]]; then
+        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | wc -l | tr -d ' ')
+        if [[ "$count" -gt 0 ]]; then
             echo "### ${category^} ($count changes)" >> "$DIFF_MD_FILE"
             echo "" >> "$DIFF_MD_FILE"
             analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | while IFS=':' read -r _ file status; do
@@ -250,7 +250,7 @@ EOF
     local first=true
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count
-        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep -c "^$category:" || echo 0)
+        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | wc -l | tr -d ' ')
         
         if [[ "$first" == "false" ]]; then
             echo "," >> "$DIFF_JSON_FILE"
