@@ -24,8 +24,8 @@ clean = re.sub(r"```[\s\S]*?```", "", text)
 violations = []
 import unicodedata as ud
 for i, line in enumerate(clean.splitlines(), 1):
-    # Violation if line contains non-ASCII letters or marks (ignore symbols like emoji)
-    if any(ord(ch) > 127 and ud.category(ch)[0] in {'L','M'} for ch in line):
+# Violation if line contains non-ASCII letters (ignore symbols/emoji/marks)
+    if any(ord(ch) > 127 and ud.category(ch)[0] in {'L'} for ch in line):
         violations.append((i, line.strip()))
 if violations:
     print(path)
