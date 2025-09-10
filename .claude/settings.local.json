@@ -13,7 +13,9 @@
       "Bash(python scripts/sdd/validate_structure.py:*)",
       "Bash(python -m pytest tests/ -v)",
       "Bash(python -m pytest tests/test_sdd_validation.py -v)",
-      "Bash(./scripts/sdd/run_semantic_checks.sh:*)"
+      "Bash(./scripts/sdd/run_semantic_checks.sh:*)",
+      "Bash(git fetch:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

@@ -65,6 +65,16 @@
 - Integration tests for: new libraries, contract changes, shared schemas?
 - FORBIDDEN: Implementation before test, skipping RED phase
 
+**Observability**:
+- Structured logging included?
+- Frontend logs → backend? (unified stream)
+- Error context sufficient?
+
+**Versioning**:
+- Version number assigned? (MAJOR.MINOR.BUILD)
+- BUILD increments on every change?
+- Breaking changes handled? (parallel tests, migration plan)
+
 ## Project Structure
 
 ### Documentation (this feature)

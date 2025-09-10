@@ -449,12 +449,12 @@ main() {
     
     # Read final assessment
     local adaptation_required risk_level
-    adaptation_required=$(grep "adaptation-required:" "$COMPAT_REPORT" | tail -1 | awk '{print $2}')
-    risk_level=$(grep "risk-level:" "$COMPAT_REPORT" | tail -1 | awk '{print $2}')
+    adaptation_required=$(grep "adaptation-required:" "$COMPAT_REPORT" | tail -1 | awk '{print $2}' || true)
+    risk_level=$(grep "risk-level:" "$COMPAT_REPORT" | tail -1 | awk '{print $2}' || true)
     
     log_info "Compatibility analysis complete:"
-    log_info "  Risk level: $risk_level"
-    log_info "  Adaptation required: $adaptation_required"
+    log_info "  Risk level: ${risk_level:-unknown}"
+    log_info "  Adaptation required: ${adaptation_required:-unknown}"
 }
 
 # Run if executed directly

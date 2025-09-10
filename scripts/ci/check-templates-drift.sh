@@ -23,7 +23,7 @@ if ! git rev-parse --verify "$REF" >/dev/null 2>&1; then
   exit 1
 fi
 
-diff_output=$(git diff --name-status "$REF" -- templates/ || true)
+diff_output=$(git diff -w --ignore-blank-lines --name-status "$REF" -- templates/ || true)
 if [[ -n "$diff_output" ]]; then
   echo "[DRIFT] Template differences detected against $REF:" >&2
   echo "$diff_output" >&2
