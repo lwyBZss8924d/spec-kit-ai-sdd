@@ -5,10 +5,16 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# Prefer global shim if present
+if [[ -f "$SCRIPT_DIR/../common.sh" ]]; then
+  # shellcheck source=../common.sh
+  source "$SCRIPT_DIR/../common.sh"
+else
+  # shellcheck source=lib/common.sh
+  source "$SCRIPT_DIR/lib/common.sh"
+fi
 
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
+cd "$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 TARGET_REF="${1:-upstream/main}"
 

@@ -47,7 +47,7 @@ BREAKING_PATTERNS=(
 initialize_report() {
     log_info "Initializing compatibility report..."
     ensure_dir "$REPORT_DIR"
-    > "$COMPAT_REPORT"
+    : > "$COMPAT_REPORT"
 }
 
 # Check for breaking changes in commits

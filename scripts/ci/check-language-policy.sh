@@ -9,8 +9,10 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$PROJECT_ROOT"
 
 # Files to check: normative artifacts in specs/ and key templates
-mapfile -t FILES < <(find specs -type f \( -name 'spec.md' -o -name 'plan.md' -o -name 'tasks.md' \) -print; \
-                    find templates -maxdepth 1 -type f -name '*-template.md' -print 2>/dev/null || true)
+mapfile -t FILES < <({ \
+  find specs -type f \( -name 'spec.md' -o -name 'plan.md' -o -name 'tasks.md' \) -print 2>/dev/null || true; \
+  find templates -maxdepth 1 -type f -name '*-template.md' -print 2>/dev/null || true; \
+} )
 
 violations=0
 

@@ -10,7 +10,8 @@ cd "$PROJECT_ROOT"
 REF="${1:-upstream/main}"
 
 if ! git remote | grep -q '^upstream$'; then
-  echo "[DRIFT] Upstream remote not configured" >&2
+  echo "[DRIFT] Upstream remote not configured. Run:" >&2
+  echo "[DRIFT]   git remote add upstream <git-url-of-upstream>" >&2
   exit 1
 fi
 
@@ -23,11 +24,13 @@ if ! git rev-parse --verify "$REF" >/dev/null 2>&1; then
   exit 1
 fi
 
-diff_output=$(git diff -w --ignore-blank-lines --name-status "$REF" -- templates/ || true)
-if [[ -n "$diff_output" ]]; then
-  echo "[DRIFT] Template differences detected against $REF:" >&2
-  echo "$diff_output" >&2
-  exit 1
+# Ignore pure whitespace/EOF-newline differences when deciding pass/fail
+if git diff -w --ignore-blank-lines --quiet "$REF" -- templates/; then
+  echo "[DRIFT] No template drift detected against $REF"
+  exit 0
 fi
 
-echo "[DRIFT] No template drift detected against $REF"
+# When there are real differences, show a precise list without whitespace suppression
+echo "[DRIFT] Template differences detected against $REF:" >&2
+git diff --name-status "$REF" -- templates/ >&2
+exit 1

@@ -23,8 +23,8 @@ initialize_reports() {
     ensure_dir "$REPORT_DIR"
     
     # Clear existing reports
-    > "$DIFF_MD_FILE"
-    > "$DIFF_JSON_FILE"
+    : > "$DIFF_MD_FILE"
+    : > "$DIFF_JSON_FILE"
 }
 
 # Get merge base

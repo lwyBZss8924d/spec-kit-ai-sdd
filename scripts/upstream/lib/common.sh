@@ -53,7 +53,7 @@ die() {
 
 # Check if terminal supports colors
 supports_color() {
-    if [[ -t 1 ]] && command -v tput >/dev/null 2>&1 && tput colors >/dev/null 2>&1; then
+    if [[ -t 2 ]] && command -v tput >/dev/null 2>&1 && tput colors >/dev/null 2>&1; then
         return 0
     fi
     return 1
@@ -111,7 +111,8 @@ git_commits_ahead() {
 
 # Create backup branch
 create_backup_branch() {
-    local branch_name="backup/$(git_current_branch)/$(timestamp_file)"
+    local branch_name
+    branch_name="backup/$(git_current_branch)/$(timestamp_file)"
     log_info "Creating backup branch: $branch_name"
     git branch "$branch_name" || die "Failed to create backup branch"
     echo "$branch_name"

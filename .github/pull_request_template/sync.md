@@ -11,7 +11,7 @@ Reminder: All normative artifacts (PRDs, specifications, implementation plans, i
 - [ ] Language policy: All normative artifacts in this PR are written in English
 - [ ] Template Drift: templates/ match upstream snapshots (verbatim except allowed manual markers)
 - [ ] Dry-run executed and reviewed
-- [ ] Reports generated (`diff.md`, `diff.json`, `compatibility.md`)
+- [ ] Reports generated (`summary.md`, `diff.md`, `diff.json`, `compatibility.md`, `fetch-summary.txt`)
 - [ ] CI passed (`scripts/ci/run-local-ci.sh`)
 - [ ] Conflicts resolved per playbook
 - [ ] Documentation updated as needed

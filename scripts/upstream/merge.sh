@@ -7,8 +7,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
+# Prefer global shim if present
+if [[ -f "$SCRIPT_DIR/../common.sh" ]]; then
+  # shellcheck source=../common.sh
+  source "$SCRIPT_DIR/../common.sh"
+else
+  # shellcheck source=lib/common.sh
+  source "$SCRIPT_DIR/lib/common.sh"
+fi
+
+cd "$PROJECT_ROOT"
 
 STRATEGY="merge"
 TARGET_REF="upstream/main"
@@ -52,7 +60,9 @@ main() {
     check_prerequisites
 
     # Verify target ref exists
-    git rev-parse --verify "$TARGET_REF" >/dev/null 2>&1 || die "Target ref not found: $TARGET_REF"
+    if ! git rev-parse --verify "$TARGET_REF" >/dev/null 2>&1; then
+        die "Target ref not found: $TARGET_REF. Try running scripts/upstream/fetch.sh first."
+    fi
 
     # Ensure clean tree
     git_is_clean || die "Working tree is not clean. Commit or stash changes first."

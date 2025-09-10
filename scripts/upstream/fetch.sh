@@ -7,8 +7,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source common functions
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
+# Prefer global shim if present
+if [[ -f "$SCRIPT_DIR/../common.sh" ]]; then
+  # shellcheck source=../common.sh
+  source "$SCRIPT_DIR/../common.sh"
+else
+  # shellcheck source=lib/common.sh
+  source "$SCRIPT_DIR/lib/common.sh"
+fi
 
 # Configuration
 UPSTREAM_REMOTE="${UPSTREAM_REMOTE:-upstream}"
@@ -18,7 +24,8 @@ FETCH_CACHE_FILE="/tmp/spec-kit-fetch-cache-$(date +%Y%m%d)"
 # Check if recent fetch exists (within last hour)
 check_cache() {
     if [[ -f "$FETCH_CACHE_FILE" ]]; then
-        local cache_age=$(($(date +%s) - $(stat -f %m "$FETCH_CACHE_FILE" 2>/dev/null || stat -c %Y "$FETCH_CACHE_FILE" 2>/dev/null || echo 0)))
+        local cache_age
+        cache_age=$(($(date +%s) - $(stat -f %m "$FETCH_CACHE_FILE" 2>/dev/null || stat -c %Y "$FETCH_CACHE_FILE" 2>/dev/null || echo 0)))
         if [[ $cache_age -lt 3600 ]]; then
             log_info "Using cached fetch from $(( cache_age / 60 )) minutes ago"
             return 0
@@ -118,7 +125,7 @@ show_summary() {
     
     # Show branch tips
     log_info "  Branch tips:"
-    git branch -r | grep "^  $UPSTREAM_REMOTE/" | head -5 | while read -r branch; do
+    git for-each-ref --format='%(refname:short)' "refs/remotes/$UPSTREAM_REMOTE/*" | head -5 | while read -r branch; do
         local commit
         commit=$(git rev-parse --short "$branch" 2>/dev/null || echo "unknown")
         log_info "    $branch -> $commit"

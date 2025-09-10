@@ -9,8 +9,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source common functions
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
+# Prefer global shim if present
+if [[ -f "$SCRIPT_DIR/../common.sh" ]]; then
+    # shellcheck source=../common.sh
+    source "$SCRIPT_DIR/../common.sh"
+else
+    # shellcheck source=lib/common.sh
+    source "$SCRIPT_DIR/lib/common.sh"
+fi
 
 # Default values
 DRY_RUN=false
