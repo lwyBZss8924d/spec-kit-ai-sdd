@@ -313,7 +313,7 @@ EOF
     # Add category breakdown
     for category in templates scripts cli dependencies ci documentation tests other; do
         local count
-        count=$(echo "$risk_data" | tail -n +2 | grep -c "^$category:" || echo 0)
+        count=$(printf '%s\n' "$risk_data" | tail -n +2 | awk -F: -v c="$category" 'BEGIN{n=0} $1==c {n++} END{print n}')
         local weight
         weight=$(get_risk_weight "$category")
         local impact="Low"
@@ -323,7 +323,7 @@ EOF
             impact="Medium"
         fi
         
-        if [[ $count -gt 0 ]]; then
+        if [[ "${count:-0}" -gt 0 ]]; then
             echo "| $category | $weight | $count | $impact |" >> "$COMPAT_REPORT"
         fi
     done
