@@ -1,0 +1,11 @@
+--- reports/upstream/20250910/upstream-templates/commands/tasks.md	2025-09-10 10:46:31
++++ templates/commands/tasks.md	2025-09-10 08:26:45
+@@ -9,6 +9,8 @@
+ 
+ Given the context provided as an argument, do this:
+ 
++**Language Policy**: Generate tasks.md in English only (all normative artifacts must be English).
++
+ 1. Run `scripts/check-task-prerequisites.sh --json` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute.
+ 2. Load and analyze available design documents:
+    - Always read plan.md for tech stack and libraries

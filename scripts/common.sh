@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shim for shared functions
+# shellcheck source=upstream/lib/common.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/upstream/lib/common.sh"
 # Common functions and variables for all scripts
 
 # Get repository root

@@ -75,6 +75,9 @@
 - BUILD increments on every change?
 - Breaking changes handled? (parallel tests, migration plan)
 
+**Language Policy**:
+- All documentation artifacts (spec, plan, tasks, PRD, issues) written in English only?
+
 ## Project Structure
 
 ### Documentation (this feature)

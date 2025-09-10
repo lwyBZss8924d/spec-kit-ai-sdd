@@ -1,7 +1,7 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Local CI Validation & Upstream Compatibility
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `004-local-ci-checks` | **Date**: 2025-09-10 | **Spec**: specs/004-local-ci-checks/spec.md
+**Input**: Feature specification for local CI checks ensuring SDD compliance and upstream compatibility
 
 ## Execution Flow (/plan command scope)
 ```
@@ -29,18 +29,15 @@
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-[Extract from feature spec: primary requirement + technical approach from research]
+Establish a fast, reliable local CI pipeline that validates SDD structure, enforces English-only policy, and detects upstream template drift. The pipeline is invoked via `scripts/ci/run-local-ci.sh`, which orchestrates the checks and returns a non-zero exit code on any failure.
 
 ## Technical Context
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+- Shell: bash on macOS/Linux
+- Dependencies: git, python3 (for language policy detection), coreutils
+- Upstream remote: `upstream` pointing to github/spec-kit
+- Entry point: scripts/ci/run-local-ci.sh
+- Checks: structure lint, language policy, template drift
+- Integration: scripts/upstream/sync.sh calls run-local-ci.sh post-merge/rebase
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -74,6 +71,9 @@
 - Version number assigned? (MAJOR.MINOR.BUILD)
 - BUILD increments on every change?
 - Breaking changes handled? (parallel tests, migration plan)
+
+**Language Policy**:
+- All documentation artifacts (spec, plan, tasks, PRD, issues) written in English only?
 
 ## Project Structure
 
@@ -127,7 +127,44 @@ ios/ or android/
 
 **Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
 
-## Phase 0: Outline & Research
+## Plan Phases
+
+### Phase 1: Orchestration & Baseline Checks
+Deliverables:
+- scripts/ci/run-local-ci.sh orchestrating all checks
+- scripts/ci/run-sdd-structure-lint.sh with exclusions (env SDD_LINT_EXCLUDE)
+- scripts/ci/check-language-policy.sh (ignore emoji/symbols, only non-ASCII letters)
+- Exit codes and timing for each check
+
+Gates:
+- Orchestrator returns non-zero on any failure
+- Human-readable outputs with remediation
+
+### Phase 2: Template Drift Integration
+Deliverables:
+- scripts/ci/check-templates-drift.sh comparing templates/ vs upstream ref (default upstream/main)
+- Friendly diff summary and non-zero exit on drift
+
+Gates:
+- Requires upstream remote
+- Detects ref availability and fails with clear guidance otherwise
+
+### Phase 3: Sync Workflow Integration
+Deliverables:
+- scripts/upstream/sync.sh invokes run-local-ci.sh post-merge/rebase
+- Wiring ensures CI executes in dry-run or full mode as appropriate
+
+Gates:
+- CI runs automatically from sync workflow; output recorded in reports/upstream/{date}
+
+### Phase 4: Performance & Reliability
+Deliverables:
+- Target runtime < 60s on typical hardware
+- Stable exit codes for automation
+
+Gates:
+- Timed checks reported by orchestrator
+- Stable error handling paths
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task

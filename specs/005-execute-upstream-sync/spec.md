@@ -12,7 +12,7 @@
 2. Extract key concepts from description
    → Identify: actors, actions, data, constraints
 3. For each unclear aspect:
-   → Mark with [NEEDS CLARIFICATION: specific question]
+   → Mark with clarification-needed notes: specific question
 4. Fill User Scenarios & Testing section
    → If no clear user flow: ERROR "Cannot determine user scenarios"
 5. Generate Functional Requirements
@@ -20,7 +20,7 @@
    → Mark ambiguous requirements
 6. Identify Key Entities (if data involved)
 7. Run Review Checklist
-   → If any [NEEDS CLARIFICATION]: WARN "Spec has uncertainties"
+   → If any clarifications remain: WARN "Spec has uncertainties"
    → If implementation details found: ERROR "Remove tech details"
 8. Return: SUCCESS (spec ready for planning)
 ```
@@ -31,6 +31,7 @@
 - ✅ Focus on WHAT users need and WHY
 - ❌ Avoid HOW to implement (no tech stack, APIs, code structure)
 - 👥 Written for business stakeholders, not developers
+- 🌐 Written in English (all normative artifacts must be English-only)
 
 ### Section Requirements
 - **Mandatory sections**: Must be completed for every feature
@@ -39,7 +40,7 @@
 
 ### For AI Generation
 When creating this spec from a user prompt:
-1. **Mark all ambiguities**: Use [NEEDS CLARIFICATION: specific question] for any assumption you'd need to make
+1. **Mark all ambiguities**: Use clear "clarification-needed" notes for any assumption you'd need to make
 2. **Don't guess**: If the prompt doesn't specify something (e.g., "login system" without auth method), mark it
 3. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
 4. **Common underspecified areas**:
@@ -75,8 +76,8 @@ When creating this spec from a user prompt:
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
 
 *Example of marking unclear requirements:*
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-006**: System MUST authenticate users via a defined method (email/password, SSO, or OAuth). Decide and document the chosen method.
+- **FR-007**: System MUST retain user data for a defined retention period (e.g., 90 days). Decide and document the period.
 
 ### Key Entities *(include if feature involves data)*
 - **[Entity 1]**: [What it represents, key attributes without implementation]
@@ -88,13 +89,14 @@ When creating this spec from a user prompt:
 *GATE: Automated checks run during main() execution*
 
 ### Content Quality
+- [ ] Written in English (normative artifacts must be English-only)
 - [ ] No implementation details (languages, frameworks, APIs)
 - [ ] Focused on user value and business needs
 - [ ] Written for non-technical stakeholders
 - [ ] All mandatory sections completed
 
 ### Requirement Completeness
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [ ] No outstanding clarification markers remain
 - [ ] Requirements are testable and unambiguous  
 - [ ] Success criteria are measurable
 - [ ] Scope is clearly bounded

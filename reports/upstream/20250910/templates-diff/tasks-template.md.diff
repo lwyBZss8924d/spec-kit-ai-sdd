@@ -1,0 +1,10 @@
+--- reports/upstream/20250910/upstream-templates/tasks-template.md	2025-09-10 10:46:28
++++ templates/tasks-template.md	2025-09-10 08:26:45
+@@ -119,6 +119,7 @@
+ ## Validation Checklist
+ *GATE: Checked by main() before returning*
+ 
++- [ ] All task descriptions written in English (normative artifacts only)
+ - [ ] All contracts have corresponding tests
+ - [ ] All entities have model tasks
+ - [ ] All tests come before implementation
