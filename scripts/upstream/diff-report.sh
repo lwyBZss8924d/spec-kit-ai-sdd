@@ -45,7 +45,7 @@ analyze_file_changes() {
     
     # Get changed files with status
     local changes
-    changes=$(git diff --name-status --find-renames --find-copies "$merge_base..$TARGET_REF")
+    changes=$(git diff --name-status --find-renames --find-copies "$merge_base..$TARGET_REF" || true)
     
     # Initialize counters
     local added=0 modified=0 deleted=0 renamed=0
@@ -129,10 +129,12 @@ generate_markdown_report() {
     # Get statistics
     IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics "$merge_base")"
     
-    # Get file changes
-    local file_stats
-    file_stats=$(analyze_file_changes "$merge_base")
-    IFS='|' read -r added modified deleted renamed <<< "$(echo "$file_stats" | head -1)"
+    # Get file changes once
+    local changes_txt
+    changes_txt=$(analyze_file_changes "$merge_base")
+    IFS='|' read -r added modified deleted renamed <<< "$(printf '%s\n' "$changes_txt" | head -1)"
+    local changes_lines
+    changes_lines=$(printf '%s\n' "$changes_txt" | tail -n +2)
     
     # Start report
     cat > "$DIFF_MD_FILE" <<EOF
@@ -164,13 +166,13 @@ EOF
     # Count by category
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count=0
-        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | wc -l | tr -d ' ')
+        count=$(printf '%s\n' "$changes_lines" | grep "^$category:" | wc -l | tr -d ' ')
         if [[ "$count" -gt 0 ]]; then
             # Portable capitalization (avoid bash 4 ${var^})
             cat_name=$(printf '%s' "$category" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
             echo "### ${cat_name} ($count changes)" >> "$DIFF_MD_FILE"
             echo "" >> "$DIFF_MD_FILE"
-            analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | while IFS=':' read -r _ file status; do
+            printf '%s\n' "$changes_lines" | grep "^$category:" | while IFS=':' read -r _ file status; do
                 echo "- \`$file\` ($status)" >> "$DIFF_MD_FILE"
             done
             echo "" >> "$DIFF_MD_FILE"
@@ -213,7 +215,12 @@ generate_json_report() {
     
     # Get statistics
     IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics "$merge_base")"
-    IFS='|' read -r added modified deleted renamed <<< "$(analyze_file_changes "$merge_base" | head -1)"
+    # Reuse previously computed results if available; fallback to re-run
+    if [[ -z "${changes_txt:-}" ]]; then
+        changes_txt=$(analyze_file_changes "$merge_base")
+    fi
+    IFS='|' read -r added modified deleted renamed <<< "$(printf '%s\n' "$changes_txt" | head -1)"
+    changes_lines=$(printf '%s\n' "$changes_txt" | tail -n +2)
     
     # Start JSON
     cat > "$DIFF_JSON_FILE" <<EOF
@@ -252,7 +259,7 @@ EOF
     local first=true
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count
-        count=$(analyze_file_changes "$merge_base" | tail -n +2 | grep "^$category:" | wc -l | tr -d ' ')
+        count=$(printf '%s\n' "$changes_lines" | grep "^$category:" | wc -l | tr -d ' ')
         
         if [[ "$first" == "false" ]]; then
             echo "," >> "$DIFF_JSON_FILE"
@@ -270,7 +277,7 @@ EOF
     
     # Add each file
     first=true
-    analyze_file_changes "$merge_base" | tail -n +2 | while IFS=':' read -r category file status; do
+    printf '%s\n' "$changes_lines" | while IFS=':' read -r category file status; do
         if [[ -n "$category" ]]; then
             if [[ "$first" == "false" ]]; then
                 echo "," >> "$DIFF_JSON_FILE"
