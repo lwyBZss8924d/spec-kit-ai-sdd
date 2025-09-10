@@ -694,17 +694,21 @@ def init(
         project_name = Path.cwd().name
         project_path = Path.cwd()
         
-        # Check if current directory has any files
-        existing_items = list(project_path.iterdir())
-        if existing_items:
-            console.print(f"[yellow]Warning:[/yellow] Current directory is not empty ({len(existing_items)} items)")
-            console.print("[yellow]Template files will be merged with existing content and may overwrite existing files[/yellow]")
-            
-            # Ask for confirmation
+    # Check if current directory has any files
+    existing_items = list(project_path.iterdir())
+    if existing_items:
+        console.print(f"[yellow]Warning:[/yellow] Current directory is not empty ({len(existing_items)} items)")
+        console.print("[yellow]Template files will be merged with existing content and may overwrite existing files[/yellow]")
+        
+        # Ask for confirmation
+        try:
             response = typer.confirm("Do you want to continue?")
             if not response:
                 console.print("[yellow]Operation cancelled[/yellow]")
                 raise typer.Exit(0)
+        except (EOFError, KeyboardInterrupt):
+            console.print("\n[yellow]Operation cancelled[/yellow]")
+            raise typer.Exit(0)
     else:
         project_path = Path(project_name).resolve()
         # Check if project directory already exists
@@ -788,59 +792,65 @@ def init(
         tracker.add(key, label)
 
     # Use transient so live tree is replaced by the final static render (avoids duplicate output)
-    with Live(tracker.render(), console=console, refresh_per_second=8, transient=True) as live:
-        tracker.attach_refresh(lambda: live.update(tracker.render()))
-        try:
-            # Resolve template repo
-            if template_repo:
-                try:
-                    owner, name = template_repo.split("/", 1)
-                except ValueError:
-                    console.print("[red]Error:[/red] --template-repo must be in 'owner/name' format")
-                    raise typer.Exit(1)
-            else:
-                owner, name = DEFAULT_REPO_OWNER, DEFAULT_REPO_NAME
-
-            # If 'both' is selected, use 'claude' as base, then add gemini agent files
-            base_ai = "claude" if selected_ai == "both" else selected_ai
-            download_and_extract_template(project_path, base_ai, here, repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, tracker=tracker)
-
-            # If both, fetch gemini agent-only files and merge
-            if selected_ai == "both":
-                tracker.add("agents", "Add additional agents")
-                tracker.start("agents")
-                try:
-                    zpath, _meta = download_template_from_github("gemini", Path.cwd(), repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, show_progress=False)
-                    _extract_agent_files(zpath, project_path, "gemini")
-                finally:
-                    if 'zpath' in locals() and Path(zpath).exists():
-                        Path(zpath).unlink()
-                tracker.complete("agents", "gemini")
-
-            # Git step
-            if not no_git:
-                tracker.start("git")
-                if is_git_repo(project_path):
-                    tracker.complete("git", "existing repo detected")
-                elif git_available:
-                    if init_git_repo(project_path, quiet=True):
-                        tracker.complete("git", "initialized")
-                    else:
-                        tracker.error("git", "init failed")
+    try:
+        with Live(tracker.render(), console=console, refresh_per_second=8, transient=True) as live:
+            tracker.attach_refresh(lambda: live.update(tracker.render()))
+            try:
+                # Resolve template repo
+                if template_repo:
+                    try:
+                        owner, name = template_repo.split("/", 1)
+                    except ValueError:
+                        console.print("[red]Error:[/red] --template-repo must be in 'owner/name' format")
+                        raise typer.Exit(1)
                 else:
-                    tracker.skip("git", "git not available")
-            else:
-                tracker.skip("git", "--no-git flag")
+                    owner, name = DEFAULT_REPO_OWNER, DEFAULT_REPO_NAME
 
-            tracker.complete("final", "project ready")
-        except Exception as e:
-            tracker.error("final", str(e))
-            if not here and project_path.exists():
-                shutil.rmtree(project_path)
-            raise typer.Exit(1)
-        finally:
-            # Force final render
-            pass
+                # If 'both' is selected, use 'claude' as base, then add gemini agent files
+                base_ai = "claude" if selected_ai == "both" else selected_ai
+                download_and_extract_template(project_path, base_ai, here, repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, tracker=tracker)
+
+                # If both, fetch gemini agent-only files and merge
+                if selected_ai == "both":
+                    tracker.add("agents", "Add additional agents")
+                    tracker.start("agents")
+                    try:
+                        zpath, _meta = download_template_from_github("gemini", Path.cwd(), repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, show_progress=False)
+                        _extract_agent_files(zpath, project_path, "gemini")
+                    finally:
+                        if 'zpath' in locals() and Path(zpath).exists():
+                            Path(zpath).unlink()
+                    tracker.complete("agents", "gemini")
+
+                # Git step
+                if not no_git:
+                    tracker.start("git")
+                    if is_git_repo(project_path):
+                        tracker.complete("git", "existing repo detected")
+                    elif git_available:
+                        if init_git_repo(project_path, quiet=True):
+                            tracker.complete("git", "initialized")
+                        else:
+                            tracker.error("git", "init failed")
+                    else:
+                        tracker.skip("git", "git not available")
+                else:
+                    tracker.skip("git", "--no-git flag")
+
+                tracker.complete("final", "project ready")
+            except Exception as e:
+                tracker.error("final", str(e))
+                console.print(f"[red]Error during initialization:[/red] {e}")
+                import traceback
+                console.print(f"[dim]{traceback.format_exc()}[/dim]")
+                if not here and project_path.exists():
+                    shutil.rmtree(project_path)
+                raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Fatal error:[/red] {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        raise typer.Exit(1)
 
     # Final static tree (ensures finished state visible after Live context ends)
     console.print(tracker.render())
