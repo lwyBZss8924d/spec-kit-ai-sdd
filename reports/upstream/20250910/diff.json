@@ -1,0 +1,105 @@
+{
+  "generated": "2025-09-10 10:37:08",
+  "source": {
+    "ref": "HEAD",
+    "sha": "9869287835e873b63472d3706c9860ca1c8b5722",
+    "short": "9869287"
+  },
+  "target": {
+    "ref": "upstream/main",
+    "sha": "fc8eb0434a0ac7d49be17b574fa104677dc47f0f",
+    "short": "fc8eb04"
+  },
+  "merge_base": {
+    "sha": "e566e90708f0457f6848c899e17f121658f57c6c",
+    "short": "e566e90"
+  },
+  "statistics": {
+    "files_changed": 9,
+    "insertions": 436,
+    "deletions": 0,
+    "net_change": 436
+  },
+  "file_changes": {
+    "added": 8,
+    "modified": 1,
+    "deleted": 0,
+    "renamed": 0
+  },
+  "categories": {
+    "templates": 0,
+    "scripts": 0,
+    "cli": 0,
+    "documentation": 7,
+    "ci": 2,
+    "tests": 0,
+    "dependencies": 0,
+    "other": 0
+  },
+  "files": [
+    {
+      "path": ".github/workflows/docs.yml",
+      "category": "ci",
+      "status": "A",
+      "risk": "medium"
+    }
+,
+    {
+      "path": ".github/workflows/release.yml",
+      "category": "ci",
+      "status": "M",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "docs/.gitignore",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/README.md",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/docfx.json",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/index.md",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/installation.md",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/quickstart.md",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/toc.yml",
+      "category": "documentation",
+      "status": "A",
+      "risk": "low"
+    }
+
+  ],
+  "commit_count": 5
+}

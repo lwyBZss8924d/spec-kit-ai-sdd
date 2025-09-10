@@ -1,0 +1,8 @@
+Fetch completed at 2025-09-10 10:14:23
+Upstream: upstream
+New commits: 5
+Cache file: /tmp/spec-kit-fetch-cache-20250910
+Fetch completed at 2025-09-10 10:31:19
+Upstream: upstream
+New commits: 5
+Cache file: /tmp/spec-kit-fetch-cache-20250910
