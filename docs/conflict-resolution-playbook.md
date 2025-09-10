@@ -1,5 +1,7 @@
 # Conflict Resolution Playbook
 
+Language Policy Reminder: All normative artifacts (PRDs, specifications, implementation plans, issues, task plans) must be written in English.
+
 This playbook provides deterministic, category-based guidance for resolving conflicts when syncing upstream changes into this fork.
 
 ## Principles
@@ -12,7 +14,7 @@ This playbook provides deterministic, category-based guidance for resolving conf
 
 ### 1) Template Conflicts (templates/)
 1. Identify structural changes (sections, placeholders, checklists)
-2. Preserve fork-specific SDD structure and language policy notes
+2. Preserve fork-specific SDD structure; enforce language policy via CI, PR templates, and docs (not inside templates)
 3. Merge upstream improvements (clarity, new sections) into fork templates
 4. Update any references in docs and scripts if template names change
 5. Validate by instantiating templates in a scratch feature dir

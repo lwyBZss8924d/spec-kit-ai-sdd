@@ -1,5 +1,7 @@
 # Upstream Sync Workflow
 
+Language Policy Reminder: All normative artifacts (PRDs, specifications, implementation plans, issues, task plans) must be written in English.
+
 This guide describes how to safely synchronize this fork with the upstream repository.
 
 ## Quick Start

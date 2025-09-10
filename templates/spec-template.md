@@ -31,7 +31,6 @@
 - ✅ Focus on WHAT users need and WHY
 - ❌ Avoid HOW to implement (no tech stack, APIs, code structure)
 - 👥 Written for business stakeholders, not developers
-- 🌐 Written in English (all normative artifacts must be English-only)
 
 ### Section Requirements
 - **Mandatory sections**: Must be completed for every feature
@@ -89,7 +88,6 @@ When creating this spec from a user prompt:
 *GATE: Automated checks run during main() execution*
 
 ### Content Quality
-- [ ] Written in English (normative artifacts must be English-only)
 - [ ] No implementation details (languages, frameworks, APIs)
 - [ ] Focused on user value and business needs
 - [ ] Written for non-technical stakeholders

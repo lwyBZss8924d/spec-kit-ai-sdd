@@ -3,6 +3,8 @@
 
 set -euo pipefail
 
+echo "[LANG] Reminder: All normative artifacts (PRDs, specifications, implementation plans, issues, task plans) must be written in English."
+
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$PROJECT_ROOT"
 
@@ -43,7 +45,8 @@ for f in "${FILES[@]}"; do
 done
 
 if [[ $violations -ne 0 ]]; then
-  echo "[LANG] Policy violations found (non-English characters detected)" >&2
+  echo "[LANG] Policy violations found (non-English letters detected)." >&2
+  echo "[LANG] How to fix: ensure specs/plan/tasks/docs are authored in English; replace non-English text or move translations outside normative artifacts." >&2
   exit 1
 fi
 

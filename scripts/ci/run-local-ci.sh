@@ -9,6 +9,8 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 REF="${1:-upstream/main}"
 
+echo "[CI] Checks to run: SDD Structure Lint, Language Policy, Template Drift (ref: $REF)"
+
 run_check() {
   local name="$1"; shift
   local start end
