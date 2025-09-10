@@ -166,8 +166,8 @@ EOF
     # Count by category
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count=0
-        count=$(printf '%s\n' "$changes_lines" | grep "^$category:" | wc -l | tr -d ' ')
-        if [[ "$count" -gt 0 ]]; then
+        count=$(printf '%s\n' "$changes_lines" | awk -v p="^$category:" 'BEGIN{c=0} $0 ~ p {c++} END{print c}')
+        if [[ "${count:-0}" -gt 0 ]]; then
             # Portable capitalization (avoid bash 4 ${var^})
             cat_name=$(printf '%s' "$category" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
             echo "### ${cat_name} ($count changes)" >> "$DIFF_MD_FILE"
@@ -259,7 +259,7 @@ EOF
     local first=true
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count
-        count=$(printf '%s\n' "$changes_lines" | grep "^$category:" | wc -l | tr -d ' ')
+        count=$(printf '%s\n' "$changes_lines" | awk -v p="^$category:" 'BEGIN{c=0} $0 ~ p {c++} END{print c}')
         
         if [[ "$first" == "false" ]]; then
             echo "," >> "$DIFF_JSON_FILE"
