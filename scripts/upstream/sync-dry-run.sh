@@ -32,8 +32,16 @@ main() {
     fi
 
     # Reports
-    [[ -x "$SCRIPT_DIR/diff-report.sh" ]] && "$SCRIPT_DIR/diff-report.sh" "$TARGET_REF" || log_warn "diff-report.sh not found"
-    [[ -x "$SCRIPT_DIR/compat-analyze.sh" ]] && "$SCRIPT_DIR/compat-analyze.sh" "$TARGET_REF" || log_warn "compat-analyze.sh not found"
+if [[ -x "$SCRIPT_DIR/diff-report.sh" ]]; then
+        "$SCRIPT_DIR/diff-report.sh" "$TARGET_REF" || log_warn "diff report generation failed"
+    else
+        log_warn "diff-report.sh not found"
+    fi
+if [[ -x "$SCRIPT_DIR/compat-analyze.sh" ]]; then
+        "$SCRIPT_DIR/compat-analyze.sh" "$TARGET_REF" || log_warn "compat analysis failed"
+    else
+        log_warn "compat-analyze.sh not found"
+    fi
 
     # Conflict preview
     log_info "Previewing potential conflicts..."

@@ -37,15 +37,13 @@ get_merge_base() {
     echo "$base"
 }
 
-# Analyze file changes
+# Analyze file changes (HEAD vs target)
 analyze_file_changes() {
-    local merge_base="$1"
-    
     log_info "Analyzing file changes..."
     
-    # Get changed files with status
+    # Get changed files with status between HEAD and target
     local changes
-    changes=$(git diff --name-status --find-renames --find-copies "$merge_base..$TARGET_REF" || true)
+    changes=$(git diff --name-status --find-renames --find-copies HEAD "$TARGET_REF" || true)
     
     # Initialize counters
     local added=0 modified=0 deleted=0 renamed=0
@@ -74,22 +72,21 @@ analyze_file_changes() {
 
 # Generate commit log
 generate_commit_log() {
-    local merge_base="$1"
     local max_commits=50
     
     log_info "Generating commit log..."
     
     # Get commit count
     local commit_count
-    commit_count=$(git rev-list --count "$merge_base..$TARGET_REF")
+    commit_count=$(git rev-list --count HEAD.."$TARGET_REF")
     
     # Get recent commits
     local commits
     if [[ $commit_count -gt $max_commits ]]; then
-        commits=$(git log --oneline "$merge_base..$TARGET_REF" | head -$max_commits)
+        commits=$(git log --oneline HEAD.."$TARGET_REF" | head -$max_commits)
         commits="$commits\n... and $((commit_count - max_commits)) more commits"
     else
-        commits=$(git log --oneline "$merge_base..$TARGET_REF")
+        commits=$(git log --oneline HEAD.."$TARGET_REF")
     fi
     
     echo "$commits"
@@ -97,13 +94,11 @@ generate_commit_log() {
 
 # Calculate diff statistics
 calculate_statistics() {
-    local merge_base="$1"
-    
     log_info "Calculating diff statistics..."
     
-    # Get line changes
+    # Get line changes between HEAD and target
     local stats
-    stats=$(git diff --shortstat "$merge_base..$TARGET_REF")
+    stats=$(git diff --shortstat HEAD "$TARGET_REF")
     
     # Parse statistics
     local files_changed=0 insertions=0 deletions=0
@@ -122,16 +117,14 @@ calculate_statistics() {
 
 # Generate Markdown report
 generate_markdown_report() {
-    local merge_base="$1"
-    
     log_info "Generating Markdown diff report..."
     
     # Get statistics
-    IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics "$merge_base")"
+    IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics)"
     
     # Get file changes once
     local changes_txt
-    changes_txt=$(analyze_file_changes "$merge_base")
+    changes_txt=$(analyze_file_changes)
     IFS='|' read -r added modified deleted renamed <<< "$(printf '%s\n' "$changes_txt" | head -1)"
     local changes_lines
     changes_lines=$(printf '%s\n' "$changes_txt" | tail -n +2)
@@ -143,7 +136,7 @@ generate_markdown_report() {
 **Generated**: $(timestamp)  
 **Source**: HEAD ($(git rev-parse --short HEAD))  
 **Target**: $TARGET_REF ($(git rev-parse --short "$TARGET_REF"))  
-**Merge Base**: $(git rev-parse --short "$merge_base")
+**Base (local)**: $(git rev-parse --short HEAD)
 
 ## Summary
 
@@ -185,19 +178,19 @@ EOF
 ## Commit Log
 
 \`\`\`
-$(generate_commit_log "$merge_base")
+$(generate_commit_log)
 \`\`\`
 
 ## Detailed Changes
 
 To view detailed changes for a specific file:
 \`\`\`bash
-git diff $merge_base..$TARGET_REF -- <filename>
+git diff HEAD "$TARGET_REF" -- <filename>
 \`\`\`
 
 To view changes in a graphical tool:
 \`\`\`bash
-git difftool $merge_base..$TARGET_REF
+git difftool HEAD "$TARGET_REF"
 \`\`\`
 
 ---
@@ -209,23 +202,22 @@ EOF
 
 # Generate JSON report
 generate_json_report() {
-    local merge_base="$1"
-    
     log_info "Generating JSON diff report..."
     
     # Get statistics
-    IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics "$merge_base")"
+    IFS='|' read -r files_changed insertions deletions <<< "$(calculate_statistics)"
     # Reuse previously computed results if available; fallback to re-run
     if [[ -z "${changes_txt:-}" ]]; then
-        changes_txt=$(analyze_file_changes "$merge_base")
+        changes_txt=$(analyze_file_changes)
     fi
     IFS='|' read -r added modified deleted renamed <<< "$(printf '%s\n' "$changes_txt" | head -1)"
     changes_lines=$(printf '%s\n' "$changes_txt" | tail -n +2)
     
     # Start JSON
-    cat > "$DIFF_JSON_FILE" <<EOF
+cat > "$DIFF_JSON_FILE" <<EOF
 {
-  "generated": "$(timestamp)",
+  "schema_version": "1.0",
+  "generated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "source": {
     "ref": "HEAD",
     "sha": "$(git rev-parse HEAD)",
@@ -236,9 +228,10 @@ generate_json_report() {
     "sha": "$(git rev-parse "$TARGET_REF")",
     "short": "$(git rev-parse --short "$TARGET_REF")"
   },
-  "merge_base": {
-    "sha": "$merge_base",
-    "short": "$(git rev-parse --short "$merge_base")"
+  "base": {
+    "ref": "HEAD",
+    "sha": "$(git rev-parse HEAD)",
+    "short": "$(git rev-parse --short HEAD)"
   },
   "statistics": {
     "files_changed": $files_changed,
@@ -298,7 +291,7 @@ EOFILE
     cat >> "$DIFF_JSON_FILE" <<EOF
 
   ],
-  "commit_count": $(git rev-list --count "$merge_base..$TARGET_REF")
+  "commit_count": $(git rev-list --count HEAD.."$TARGET_REF")
 }
 EOF
     
@@ -315,14 +308,9 @@ main() {
     # Initialize reports
     initialize_reports
     
-    # Get merge base
-    local merge_base
-    merge_base=$(get_merge_base)
-    log_info "Merge base: $(git rev-parse --short "$merge_base")"
-    
-    # Generate reports
-    generate_markdown_report "$merge_base"
-    generate_json_report "$merge_base"
+    # Generate reports (HEAD vs target)
+    generate_markdown_report
+    generate_json_report
     
     # Summary
     log_info "Diff reports generated successfully:"

@@ -68,7 +68,7 @@ check_breaking_commits() {
                 break
             fi
         done
-    done < <(git rev-list "$merge_base..$TARGET_REF")
+    done < <(git rev-list HEAD.."$TARGET_REF")
     
     if [[ ${#breaking_commits[@]} -gt 0 ]]; then
         log_warn "Found ${#breaking_commits[@]} commits with potential breaking changes"
@@ -94,7 +94,7 @@ analyze_template_changes() {
                 R*) template_changes+=("RENAMED: $file -> $rest") ;;
             esac
         fi
-    done < <(git diff --name-status --find-renames "$merge_base..$TARGET_REF")
+    done < <(git diff --name-status --find-renames HEAD "$TARGET_REF")
     
     if [[ ${#template_changes[@]} -gt 0 ]]; then
         log_warn "Found ${#template_changes[@]} template changes"
@@ -112,7 +112,7 @@ analyze_cli_changes() {
     
     # Check for changes in CLI files
     local cli_files
-    cli_files=$(git diff --name-only "$merge_base..$TARGET_REF" | grep -E "(src/specify_cli|pyproject\.toml)" || true)
+    cli_files=$(git diff --name-only HEAD "$TARGET_REF" | grep -E "(src/specify_cli|pyproject\.toml)" || true)
     
     if [[ -n "$cli_files" ]]; then
         # Check for command changes
@@ -139,7 +139,7 @@ analyze_script_changes() {
     
     # Get changed script files
     local scripts
-    scripts=$(git diff --name-only "$merge_base..$TARGET_REF" | grep -E "^scripts/.*\.(sh|py)$" || true)
+    scripts=$(git diff --name-only HEAD "$TARGET_REF" | grep -E "^scripts/.*\.(sh|py)$" || true)
     
     if [[ -n "$scripts" ]]; then
         while IFS= read -r script; do
@@ -184,7 +184,7 @@ calculate_risk_score() {
         
         total_score=$((total_score + score))
         risk_details+=("$category:$score:$file:$status")
-    done < <(git diff --name-status --find-renames "$merge_base..$TARGET_REF")
+    done < <(git diff --name-status --find-renames HEAD "$TARGET_REF")
     
     # Check for breaking commits
     local breaking_count
