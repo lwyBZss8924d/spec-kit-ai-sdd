@@ -1,0 +1,10 @@
+# Temporary files
+*.tmp
+*.log.bak
+*.swp
+.DS_Store
+
+# Keep reports directory structure
+!upstream/
+!upstream/**/*.md
+!upstream/**/*.json
