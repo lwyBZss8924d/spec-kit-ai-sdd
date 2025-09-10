@@ -1,42 +1,93 @@
 {
-  "generated": "2025-09-10 10:37:08",
+  "schema_version": "1.0",
+  "generated": "2025-09-10T04:11:17Z",
   "source": {
     "ref": "HEAD",
-    "sha": "9869287835e873b63472d3706c9860ca1c8b5722",
-    "short": "9869287"
+    "sha": "d128a864eaa3cc138b7544abd3993f48896f6bea",
+    "short": "d128a86"
   },
   "target": {
-    "ref": "upstream/main",
-    "sha": "fc8eb0434a0ac7d49be17b574fa104677dc47f0f",
-    "short": "fc8eb04"
+    "ref": "v0.0.20",
+    "sha": "4591cf7df67fa793450c3b99b759cbd8bd0b7299",
+    "short": "4591cf7"
   },
-  "merge_base": {
-    "sha": "e566e90708f0457f6848c899e17f121658f57c6c",
-    "short": "e566e90"
+  "base": {
+    "ref": "HEAD",
+    "sha": "d128a864eaa3cc138b7544abd3993f48896f6bea",
+    "short": "d128a86"
   },
   "statistics": {
-    "files_changed": 9,
-    "insertions": 436,
-    "deletions": 0,
-    "net_change": 436
+    "files_changed": 85,
+    "insertions": 435,
+    "deletions": 11252,
+    "net_change": -10817
   },
   "file_changes": {
     "added": 8,
-    "modified": 1,
-    "deleted": 0,
+    "modified": 7,
+    "deleted": 70,
     "renamed": 0
   },
   "categories": {
-    "templates": 0,
-    "scripts": 0,
+    "templates": 3,
+    "scripts": 16,
     "cli": 0,
-    "documentation": 7,
-    "ci": 2,
-    "tests": 0,
-    "dependencies": 0,
-    "other": 0
+    "documentation": 50,
+    "ci": 5,
+    "tests": 2,
+    "dependencies": 1,
+    "other": 8
   },
   "files": [
+    {
+      "path": ".claude/settings.local.json",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".editorconfig",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".gitattributes",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".github/pull_request_template/sync.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".github/workflows/ai-review.yml",
+      "category": "ci",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": ".github/workflows/claude-code-review.yml",
+      "category": "ci",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": ".github/workflows/claude.yml",
+      "category": "ci",
+      "status": "D",
+      "risk": "medium"
+    }
+,
     {
       "path": ".github/workflows/docs.yml",
       "category": "ci",
@@ -45,10 +96,157 @@
     }
 ,
     {
-      "path": ".github/workflows/release.yml",
+      "path": ".github/workflows/sdd-ci.yml",
       "category": "ci",
-      "status": "M",
+      "status": "D",
       "risk": "medium"
+    }
+,
+    {
+      "path": ".markdownlint.json",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/.gitignore",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/memories/code_style_conventions.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/memories/project_overview.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/memories/suggested_commands.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/memories/task_completion_checklist.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": ".serena/project.yml",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "AGENTS.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "CHANGELOG.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "CLAUDE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "README.md",
+      "category": "documentation",
+      "status": "M",
+      "risk": "low"
+    }
+,
+    {
+      "path": "WARP.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/agents/mcp.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/cli/AGENTS.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/cli/CLAUDE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/git/worktrees.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/sdd/AGENTS.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/sdd/CLAUDE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/sdd/constitution.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/sdd/constitution_update_checklist.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "dev-docs/sdd/lifecycle.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
     }
 ,
     {
@@ -62,6 +260,13 @@
       "path": "docs/README.md",
       "category": "documentation",
       "status": "A",
+      "risk": "low"
+    }
+,
+    {
+      "path": "docs/conflict-resolution-playbook.md",
+      "category": "documentation",
+      "status": "D",
       "risk": "low"
     }
 ,
@@ -99,7 +304,336 @@
       "status": "A",
       "risk": "low"
     }
+,
+    {
+      "path": "docs/upstream-sync-workflow.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "memory/constitution.md",
+      "category": "documentation",
+      "status": "M",
+      "risk": "low"
+    }
+,
+    {
+      "path": "pyproject.toml",
+      "category": "dependencies",
+      "status": "M",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "reports/upstream/20250910/compatibility.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "reports/upstream/20250910/diff.json",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "reports/upstream/20250910/diff.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "reports/upstream/20250910/fetch-summary.txt",
+      "category": "other",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "reports/upstream/20250910/summary.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "scripts/ci/check-language-policy.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/ci/check-templates-drift.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/ci/run-local-ci.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/ci/run-sdd-structure-lint.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/common.sh",
+      "category": "scripts",
+      "status": "M",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/sdd/check_language.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/sdd/lint_docs.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/sdd/run_semantic_checks.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/sdd/validate_structure.py",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/compat-analyze.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/diff-report.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/fetch.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/lib/common.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/merge.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/sync-dry-run.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "scripts/upstream/sync.sh",
+      "category": "scripts",
+      "status": "D",
+      "risk": "medium"
+    }
+,
+    {
+      "path": "specs/000-example/ISSUE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/000-example/TASK-PLAN.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/000-example/spec.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/002-language-policy/IMPLEMENTATION.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/003-upstream-sync-sdd/AGENTS.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/003-upstream-sync-sdd/CLAUDE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/003-upstream-sync-sdd/plan.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/003-upstream-sync-sdd/spec.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/003-upstream-sync-sdd/tasks.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/004-local-ci-checks/AGENTS.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/004-local-ci-checks/CLAUDE.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/004-local-ci-checks/plan.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/004-local-ci-checks/spec.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/004-local-ci-checks/tasks.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/005-execute-upstream-sync/adaptation.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/005-execute-upstream-sync/plan.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/005-execute-upstream-sync/spec.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "specs/005-execute-upstream-sync/tasks.md",
+      "category": "documentation",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "templates/agent-file-template.md",
+      "category": "templates",
+      "status": "M",
+      "risk": "high"
+    }
+,
+    {
+      "path": "templates/plan-template.md",
+      "category": "templates",
+      "status": "M",
+      "risk": "high"
+    }
+,
+    {
+      "path": "templates/tasks-template.md",
+      "category": "templates",
+      "status": "M",
+      "risk": "high"
+    }
+,
+    {
+      "path": "tests/test_sdd_validation.py",
+      "category": "tests",
+      "status": "D",
+      "risk": "low"
+    }
+,
+    {
+      "path": "tests/test_specify_cli.py",
+      "category": "tests",
+      "status": "D",
+      "risk": "low"
+    }
 
   ],
-  "commit_count": 5
+  "commit_count": 3
 }

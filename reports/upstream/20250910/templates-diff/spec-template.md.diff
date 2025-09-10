@@ -1,0 +1,18 @@
+--- reports/upstream/20250910/upstream-templates/spec-template.md	2025-09-10 10:46:27
++++ templates/spec-template.md	2025-09-10 08:26:45
+@@ -31,6 +31,7 @@
+ - ✅ Focus on WHAT users need and WHY
+ - ❌ Avoid HOW to implement (no tech stack, APIs, code structure)
+ - 👥 Written for business stakeholders, not developers
++- 🌐 Written in English (all normative artifacts must be English-only)
+ 
+ ### Section Requirements
+ - **Mandatory sections**: Must be completed for every feature
+@@ -88,6 +89,7 @@
+ *GATE: Automated checks run during main() execution*
+ 
+ ### Content Quality
++- [ ] Written in English (normative artifacts must be English-only)
+ - [ ] No implementation details (languages, frameworks, APIs)
+ - [ ] Focused on user value and business needs
+ - [ ] Written for non-technical stakeholders

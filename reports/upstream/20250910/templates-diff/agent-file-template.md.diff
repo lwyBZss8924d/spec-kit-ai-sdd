@@ -1,0 +1,13 @@
+--- reports/upstream/20250910/upstream-templates/agent-file-template.md	2025-09-10 10:46:26
++++ templates/agent-file-template.md	2025-09-10 08:26:45
+@@ -2,6 +2,10 @@
+ 
+ Auto-generated from all feature plans. Last updated: [DATE]
+ 
++## Language Policy
++
++All normative specification and task artifacts (PRDs, specifications, implementation plans, issues, task plans) committed to the repository MUST be written in English. You may converse with developers in other languages, but do not commit non-English content to these artifacts.
++
+ ## Active Technologies
+ [EXTRACTED FROM ALL PLAN.MD FILES]
+ 
