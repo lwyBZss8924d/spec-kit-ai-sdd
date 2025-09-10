@@ -7,10 +7,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Default permissions for all jobs (can be overridden per job)
+permissions:
+  contents: read
+
 jobs:
   sdd-validate:
     name: Validate SDD Structure
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -78,6 +84,8 @@ jobs:
   language-policy:
     name: Language Policy Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -95,6 +103,8 @@ jobs:
   docs-style:
     name: Documentation Style Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -126,6 +136,8 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         python-version: ['3.11', '3.12']
@@ -163,6 +175,8 @@ jobs:
   linters:
     name: Code Quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -236,6 +250,8 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [sdd-validate, language-policy, docs-style, tests, linters]
     if: always()
     steps:
