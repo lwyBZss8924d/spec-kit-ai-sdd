@@ -161,18 +161,6 @@ generate_markdown_report() {
 
 EOF
     
-    # Group changes by category
-    declare -A category_counts
-    declare -A category_files
-    
-    # Skip the first line (statistics)
-    analyze_file_changes "$merge_base" | tail -n +2 | while IFS=':' read -r category file status; do
-        if [[ -n "$category" ]]; then
-            echo "- [$status] $category: $file" >> "$DIFF_MD_FILE.tmp"
-            ((category_counts[$category]++))
-        fi
-    done
-    
     # Count by category
     for category in templates scripts cli documentation ci tests dependencies other; do
         local count=0

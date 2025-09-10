@@ -20,17 +20,16 @@ COMPAT_REPORT="$REPORT_DIR/compatibility.md"
 HIGH_RISK_THRESHOLD=5
 MEDIUM_RISK_THRESHOLD=2
 
-# Risk factors
-declare -A RISK_SCORES=(
-    [templates]=5
-    [scripts]=3
-    [cli]=4
-    [dependencies]=3
-    [ci]=2
-    [documentation]=1
-    [tests]=1
-    [other]=1
-)
+# Risk weight function (avoid associative arrays for macOS bash compatibility)
+get_risk_weight() {
+    case "$1" in
+        templates) echo 5 ;;
+        cli) echo 4 ;;
+        scripts|dependencies) echo 3 ;;
+        ci) echo 2 ;;
+        documentation|tests|other|*) echo 1 ;;
+    esac
+}
 
 # Breaking change patterns
 BREAKING_PATTERNS=(
@@ -175,7 +174,8 @@ calculate_risk_score() {
     while IFS=$'\t' read -r status file rest; do
         local category
         category=$(categorize_file "$file")
-        local score=${RISK_SCORES[$category]:-1}
+        local score
+        score=$(get_risk_weight "$category")
         
         # Increase score for deletions
         if [[ "$status" == "D" ]]; then
@@ -314,10 +314,14 @@ EOF
     for category in templates scripts cli dependencies ci documentation tests other; do
         local count
         count=$(echo "$risk_data" | tail -n +2 | grep -c "^$category:" || echo 0)
-        local weight=${RISK_SCORES[$category]}
+        local weight
+        weight=$(get_risk_weight "$category")
         local impact="Low"
-        [[ $weight -ge 3 ]] && impact="Medium"
-        [[ $weight -ge 4 ]] && impact="High"
+        if [[ "$weight" -ge 4 ]]; then
+            impact="High"
+        elif [[ "$weight" -ge 3 ]]; then
+            impact="Medium"
+        fi
         
         if [[ $count -gt 0 ]]; then
             echo "| $category | $weight | $count | $impact |" >> "$COMPAT_REPORT"
