@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code when working with the Specify CLI in this repository.
 
+## Language Policy
+
+CLI-generated normative artifacts must be English-only. When generating templates or specifications, ensure all content is in English. Fail with a clear error if non-English content is detected in normative artifacts.
+
 ## Role
 
 You are responsible for developing and maintaining the Specify CLI tool that bootstraps SDD projects. Your focus areas include:

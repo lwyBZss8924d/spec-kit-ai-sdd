@@ -28,6 +28,9 @@
 [PRINCIPLE_5_DESCRIPTION]
 <!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
+### VI. Language Policy (English-only Normative Artifacts)
+All normative specification and task artifacts committed to the repository (PRDs, specifications, implementation plans, issues, task plans) MUST be written in English. Conversational collaboration (discussions, PR comments, chat) may occur in other languages, but committed normative artifacts must remain English-only. This ensures global accessibility and consistency across all AI agents and contributors.
+
 ## [SECTION_2_NAME]
 <!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
