@@ -81,6 +81,39 @@ jobs:
         else
           echo "⚠️ scripts folder not found"
         fi
+
+        # Include dev-docs and governance docs
+        if [ -d "dev-docs" ]; then
+          cp -r dev-docs sdd-package-base/
+          echo "✓ Copied dev-docs folder ($(find dev-docs -type f | wc -l) files)"
+        else
+          echo "⚠️ dev-docs folder not found"
+        fi
+        if [ -f "WARP.md" ]; then
+          cp WARP.md sdd-package-base/
+          echo "✓ Copied WARP.md"
+        fi
+        if [ -f "README.md" ]; then
+          cp README.md sdd-package-base/
+          echo "✓ Copied README.md"
+        fi
+        if [ -f "CLAUDE.md" ]; then
+          cp CLAUDE.md sdd-package-base/
+          echo "✓ Copied CLAUDE.md"
+        fi
+        if [ -f "AGENTS.md" ]; then
+          cp AGENTS.md sdd-package-base/
+          echo "✓ Copied AGENTS.md"
+        fi
+
+        # Include default project workflows
+        if [ -d ".github/workflows" ]; then
+          mkdir -p sdd-package-base/.github
+          cp -r .github/workflows sdd-package-base/.github/
+          echo "✓ Copied .github/workflows"
+        else
+          echo "⚠️ .github/workflows not found"
+        fi
         
         # Create Claude Code package
         echo "Creating Claude Code package..."

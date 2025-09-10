@@ -77,6 +77,35 @@ jobs:
           find templates -type f -not -path "templates/commands/*" -exec cp --parents {} sdd-package-base/ \;
           echo "Copied templates folder (excluding commands directory)"
         fi
+
+        # Include dev-docs and top-level governance docs
+        if [ -d "dev-docs" ]; then
+          cp -r dev-docs sdd-package-base/
+          echo "Copied dev-docs folder"
+        fi
+        if [ -f "WARP.md" ]; then
+          cp WARP.md sdd-package-base/
+          echo "Copied WARP.md"
+        fi
+        if [ -f "README.md" ]; then
+          cp README.md sdd-package-base/
+          echo "Copied README.md"
+        fi
+        if [ -f "CLAUDE.md" ]; then
+          cp CLAUDE.md sdd-package-base/
+          echo "Copied CLAUDE.md"
+        fi
+        if [ -f "AGENTS.md" ]; then
+          cp AGENTS.md sdd-package-base/
+          echo "Copied AGENTS.md"
+        fi
+
+        # Include default project workflows
+        if [ -d ".github/workflows" ]; then
+          mkdir -p sdd-package-base/.github
+          cp -r .github/workflows sdd-package-base/.github/
+          echo "Copied .github/workflows"
+        fi
         
         # Generate command files for each agent from source templates
         generate_commands() {

@@ -51,8 +51,13 @@ import readchar
 AI_CHOICES = {
     "copilot": "GitHub Copilot",
     "claude": "Claude Code",
-    "gemini": "Gemini CLI"
+    "gemini": "Gemini CLI",
+    "both": "Claude + Gemini"
 }
+
+# Default template repo (can be overridden via env vars)
+DEFAULT_REPO_OWNER = os.getenv("SPECIFY_TEMPLATE_REPO_OWNER", "lwyBZss8924d")
+DEFAULT_REPO_NAME = os.getenv("SPECIFY_TEMPLATE_REPO_NAME", "spec-kit-ai-sdd")
 
 # ASCII Art Banner
 BANNER = """
@@ -385,16 +390,20 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(original_cwd)
 
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, verbose: bool = True, show_progress: bool = True):
+def download_template_from_github(ai_assistant: str, download_dir: Path, repo_owner: Optional[str] = None, repo_name: Optional[str] = None, release_tag: Optional[str] = None, *, verbose: bool = True, show_progress: bool = True):
     """Download the latest template release from GitHub using HTTP requests.
     Returns (zip_path, metadata_dict)
     """
-    repo_owner = "github"
-    repo_name = "spec-kit"
+    # Resolve template repo
+    repo_owner = repo_owner or DEFAULT_REPO_OWNER
+    repo_name = repo_name or DEFAULT_REPO_NAME
     
     if verbose:
-        console.print("[cyan]Fetching latest release information...[/cyan]")
-    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+        console.print(f"[cyan]Fetching release information from {repo_owner}/{repo_name}...[/cyan]")
+    if release_tag:
+        api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/tags/{release_tag}"
+    else:
+        api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
     
     try:
         response = httpx.get(api_url, timeout=30, follow_redirects=True)
@@ -483,7 +492,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, verb
     return zip_path, metadata
 
 
-def download_and_extract_template(project_path: Path, ai_assistant: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None) -> Path:
+def download_and_extract_template(project_path: Path, ai_assistant: str, is_current_dir: bool = False, *, repo_owner: Optional[str] = None, repo_name: Optional[str] = None, release_tag: Optional[str] = None, verbose: bool = True, tracker: StepTracker | None = None) -> Path:
     """Download the latest release and extract it to create a new project.
     Returns project_path. Uses tracker if provided (with keys: fetch, download, extract, cleanup)
     """
@@ -496,6 +505,9 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, is_curr
         zip_path, meta = download_template_from_github(
             ai_assistant,
             current_dir,
+            repo_owner=repo_owner,
+            repo_name=repo_name,
+            release_tag=release_tag,
             verbose=verbose and tracker is None,
             show_progress=(tracker is None)
         )
@@ -638,10 +650,12 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, is_curr
 @app.command()
 def init(
     project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here)"),
-    ai_assistant: str = typer.Option(None, "--ai", help="AI assistant to use: claude, gemini, or copilot"),
+    ai_assistant: str = typer.Option(None, "--ai", help="AI assistant to use: claude, gemini, copilot, or both"),
     ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="Skip checks for AI agent tools like Claude Code"),
     no_git: bool = typer.Option(False, "--no-git", help="Skip git repository initialization"),
     here: bool = typer.Option(False, "--here", help="Initialize project in the current directory instead of creating a new one"),
+    template_repo: Optional[str] = typer.Option(None, "--template-repo", help="Template repo in owner/name form (defaults via env SPECIFY_TEMPLATE_REPO_OWNER/NAME)"),
+    template_tag: Optional[str] = typer.Option(None, "--template-tag", help="Specific release tag to use instead of latest"),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -723,22 +737,29 @@ def init(
         selected_ai = select_with_arrows(
             AI_CHOICES, 
             "Choose your AI assistant:", 
-            "copilot"
+            "claude"
         )
     
     # Check agent tools unless ignored
     if not ignore_agent_tools:
         agent_tool_missing = False
-        if selected_ai == "claude":
-            if not check_tool("claude", "Install from: https://docs.anthropic.com/en/docs/claude-code/setup"):
-                console.print("[red]Error:[/red] Claude CLI is required for Claude Code projects")
-                agent_tool_missing = True
-        elif selected_ai == "gemini":
-            if not check_tool("gemini", "Install from: https://github.com/google-gemini/gemini-cli"):
-                console.print("[red]Error:[/red] Gemini CLI is required for Gemini projects")
-                agent_tool_missing = True
+        targets = []
+        if selected_ai == "both":
+            targets = ["claude", "gemini"]
+        elif selected_ai in ("claude", "gemini"):
+            targets = [selected_ai]
+        else:
+            targets = []
+        for t in targets:
+            if t == "claude":
+                if not check_tool("claude", "Install from: https://docs.anthropic.com/en/docs/claude-code/setup"):
+                    console.print("[red]Error:[/red] Claude CLI is required for Claude Code projects")
+                    agent_tool_missing = True
+            elif t == "gemini":
+                if not check_tool("gemini", "Install from: https://github.com/google-gemini/gemini-cli"):
+                    console.print("[red]Error:[/red] Gemini CLI is required for Gemini projects")
+                    agent_tool_missing = True
         # GitHub Copilot check is not needed as it's typically available in supported IDEs
-        
         if agent_tool_missing:
             console.print("\n[red]Required AI tool is missing![/red]")
             console.print("[yellow]Tip:[/yellow] Use --ignore-agent-tools to skip this check")
@@ -770,7 +791,31 @@ def init(
     with Live(tracker.render(), console=console, refresh_per_second=8, transient=True) as live:
         tracker.attach_refresh(lambda: live.update(tracker.render()))
         try:
-            download_and_extract_template(project_path, selected_ai, here, verbose=False, tracker=tracker)
+            # Resolve template repo
+            if template_repo:
+                try:
+                    owner, name = template_repo.split("/", 1)
+                except ValueError:
+                    console.print("[red]Error:[/red] --template-repo must be in 'owner/name' format")
+                    raise typer.Exit(1)
+            else:
+                owner, name = DEFAULT_REPO_OWNER, DEFAULT_REPO_NAME
+
+            # If 'both' is selected, use 'claude' as base, then add gemini agent files
+            base_ai = "claude" if selected_ai == "both" else selected_ai
+            download_and_extract_template(project_path, base_ai, here, repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, tracker=tracker)
+
+            # If both, fetch gemini agent-only files and merge
+            if selected_ai == "both":
+                tracker.add("agents", "Add additional agents")
+                tracker.start("agents")
+                try:
+                    zpath, _meta = download_template_from_github("gemini", Path.cwd(), repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, show_progress=False)
+                    _extract_agent_files(zpath, project_path, "gemini")
+                finally:
+                    if 'zpath' in locals() and Path(zpath).exists():
+                        Path(zpath).unlink()
+                tracker.complete("agents", "gemini")
 
             # Git step
             if not no_git:
@@ -862,6 +907,131 @@ def check():
     if not (claude_ok or gemini_ok):
         console.print("[yellow]Consider installing an AI assistant for the best experience[/yellow]")
 
+
+# -------- Agent utilities --------
+
+def _extract_agent_files(zip_path: Path, project_path: Path, ai: str):
+    """Extract only agent-specific files from a template archive into the project.
+    Supports ai in {"claude","gemini","copilot"}.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+        temp_root = Path(temp_dir)
+        patterns = []
+        if ai == "claude":
+            patterns = [".claude/commands", "CLAUDE.md"]
+        elif ai == "gemini":
+            patterns = [".gemini/commands", "GEMINI.md"]
+        elif ai == "copilot":
+            patterns = [".github/prompts"]
+        copied = []
+        for pat in patterns:
+            src = temp_root / pat
+            if src.is_dir():
+                dest = project_path / pat
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                if dest.exists():
+                    shutil.rmtree(dest)
+                shutil.copytree(src, dest)
+                copied.append(str(pat))
+            elif src.is_file():
+                dest = project_path / pat
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dest)
+                copied.append(str(pat))
+        if copied:
+            console.print(f"[green]✓[/green] Installed {ai} agent files: {', '.join(copied)}")
+        else:
+            console.print(f"[yellow]No agent files found for {ai} in archive[/yellow]")
+
+# -------- Subcommands --------
+
+agents_app = typer.Typer(name="agents", help="Manage AI agent integrations for an existing project")
+
+@agents_app.command("list")
+def agents_list():
+    """List configured agent integrations in the current project."""
+    root = Path.cwd()
+    found = []
+    if (root / ".claude/commands").exists() or (root / "CLAUDE.md").exists():
+        found.append("claude")
+    if (root / ".gemini/commands").exists() or (root / "GEMINI.md").exists():
+        found.append("gemini")
+    if (root / ".github/prompts").exists():
+        found.append("copilot")
+    console.print(f"Agents: {', '.join(found) if found else 'none'}")
+
+@agents_app.command("add")
+def agents_add(
+    ai: str = typer.Argument(..., help="Agent to add: claude | gemini | copilot"),
+    template_repo: Optional[str] = typer.Option(None, "--template-repo", help="Template repo owner/name"),
+    template_tag: Optional[str] = typer.Option(None, "--template-tag", help="Specific release tag"),
+):
+    """Add agent-specific commands/config into the current project."""
+    if ai not in ("claude", "gemini", "copilot"):
+        console.print("[red]Invalid agent. Use: claude | gemini | copilot[/red]")
+        raise typer.Exit(1)
+    if template_repo:
+        try:
+            owner, name = template_repo.split("/", 1)
+        except ValueError:
+            console.print("[red]--template-repo must be 'owner/name'[/red]")
+            raise typer.Exit(1)
+    else:
+        owner, name = DEFAULT_REPO_OWNER, DEFAULT_REPO_NAME
+    try:
+        zpath, _meta = download_template_from_github(ai, Path.cwd(), repo_owner=owner, repo_name=name, release_tag=template_tag, verbose=False, show_progress=False)
+        _extract_agent_files(Path(zpath), Path.cwd(), ai)
+    finally:
+        if 'zpath' in locals() and Path(zpath).exists():
+            Path(zpath).unlink()
+
+# Template tools (initial scaffolding)
+
+templates_app = typer.Typer(name="templates", help="Work with templates, diffs and updates")
+
+@templates_app.command("diff")
+def templates_diff(ref: str = typer.Option("upstream/main", "--ref", help="Reference to compare against (for drift checks)")):
+    """Run a basic template drift check using built-in scripts if available."""
+    script = Path("scripts/ci/check-templates-drift.sh")
+    if script.exists():
+        console.print("[cyan]Running template drift check...[/cyan]")
+        try:
+            run_command([str(script), ref], check_return=False)
+        except Exception:
+            pass
+    else:
+        console.print("[yellow]Drift script not found in this project[/yellow]")
+
+@templates_app.command("update")
+def templates_update(dry_run: bool = typer.Option(True, "--dry-run/--apply", help="Preview changes by default")):
+    """Placeholder for update framework. Will compare project against latest template and apply non-destructive updates."""
+    if dry_run:
+        console.print("[cyan]Dry-run:[/cyan] Template update preview (framework coming soon)")
+    else:
+        console.print("[yellow]Apply mode:[/yellow] Update framework not yet implemented")
+
+@app.command()
+def doctor():
+    """Run local SDD checks (structure, language policy, docs lint) if scripts exist."""
+    show_banner()
+    ran_any = False
+    script_ci = Path("scripts/ci/run-local-ci.sh")
+    if script_ci.exists():
+        console.print("[cyan]Running local CI checks...[/cyan]")
+        run_command([str(script_ci)], check_return=False)
+        ran_any = True
+    script_sem = Path("scripts/sdd/run_semantic_checks.sh")
+    if script_sem.exists():
+        console.print("[cyan]Running semantic checks...[/cyan]")
+        run_command(["bash", str(script_sem)], check_return=False)
+        ran_any = True
+    if not ran_any:
+        console.print("[yellow]No local check scripts found in this project[/yellow]")
+
+app.add_typer(agents_app, name="agents")
+app.add_typer(templates_app, name="templates")
 
 def main():
     app()
